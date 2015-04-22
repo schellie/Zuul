@@ -1,0 +1,25 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <title>Zuul</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <script type="text/javascript" src="zuul.js"></script>
+</head>
+
+<body class="body" onload="init()">
+<table>
+    <tr><td></td><td><button onclick='doAction(11)'>N</button></td><td></td></tr>
+    <tr><td><button onclick='doAction(14)'>W</button></td><td></td><td><button onclick='doAction(12)'>E</button></td></tr>
+    <tr><td></td><td><button onclick='doAction(13)'>S</button></td><td></td></tr>
+</table>
+<table>
+	<tr><td>
+		<textarea rows="20" cols="70" id="display" readonly style="cursor: pointer;width: 600px;"></textarea>
+	</td></tr>
+	<tr><td>
+		<input type="text" id="command" style="width: 600px;">
+	</td></tr>
+	</table>
+</body>
+</html>
