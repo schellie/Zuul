@@ -33,7 +33,6 @@ var player = {
     	if (this.holding() == 0) write('You don\'t carry anything');
     	else {
     		for (var i in this.inventory) {
-    			var ref = items.indexOf(this.inventory[i]); // get a reference for this item
     			locations[this.current].drop(this.inventory[i]);
     			write(this.inventory[i].getName().toProperCase() + ' dropped.', true);
     		}
@@ -53,18 +52,18 @@ var player = {
 
 String.prototype.toProperCase = function() {
 	return this.substr(0, 1).toUpperCase() + this.substr(1);
-}
+};
 
 function write(s, noprompt) {
 	noprompt = (noprompt === 'undefined')?false:noprompt;
 	display.innerHTML += s + '\n' + (noprompt?'':'> ');
 	display.scrollTop = display.scrollHeight;
-}
+};
 
 function Act(target, cmd) {
     this.target = target;
-    this.cmd = cmd
-}
+    this.cmd = cmd;
+};
 
 function Item(name, description) {
 	this.name = name;
@@ -73,16 +72,16 @@ function Item(name, description) {
 }
 Item.prototype.getName = function() {
 	return this.name;
-}
+};
 Item.prototype.addStatus = function(m) {
 	this.message.push(m);
-}
+};
 Item.prototype.show = function() {
 	return this.message[this.status];
-}
+};
 Item.prototype.look = function() {
 	return 'There is ' + this.show() + ' here.';
-}
+};
 
 
 function Location(name) {
@@ -92,7 +91,7 @@ function Location(name) {
 }
 Location.prototype.addExit = function(exit) {
     this.exits.push(exit);
-}
+};
 Location.prototype.look = function() {
     var s = this.name + '\n';
     this.items.forEach(function (e, i) {
@@ -103,22 +102,22 @@ Location.prototype.look = function() {
          s += directions[e.command] + ', ';
     });
     return s.slice(0, -2);
-}
+};
 Location.prototype.move = function(d) {
     for (var e in this.exits) {
     	if (this.exits[e].command == d) return this.exits[e].target;
     }
     return -1;
-}
+};
 Location.prototype.drop = function(i) {
 	this.items.push(i);
-}
+};
 Location.prototype.take = function(i) {
 	this.items.splice(this.items.indexOf(i), 1);
-}
+};
 Location.prototype.getItems = function() {
 	return this.items;
-}
+};
 
 function Exit(cmd, target) {
     this.command = cmd;
@@ -266,3 +265,31 @@ function init() {
 	command.focus();
 }
 
+
+/*
+// Remove an item by value in an Array object
+var arr = ['a', 'b', 'c', 'd'];
+var pos = arr.indexOf( 'c' );
+pos > -1 && arr.splice( pos, 1 );
+Print( arr ); // prints: a,b,d
+
+// Multiple-value returns
+function f() { return [1, 2]; }
+var [a, b] = f();
+Print( a + ' ' + b ); // prints: 1 2
+
+// Change current object (this) of a function call
+function test(arg) { Print( this[0]+' '+this[1]+' '+arg ); }
+var arr = ['foo', 'bar'];
+test.call(arr, 'toto'); // prints: foo bar toto
+
+// swap two variables
+var a = 1;
+var b = 2;
+[a,b] = [b,a];
+
+// Iterate on values
+for each ( var i in [3,23,4] ) Print(i)
+
+
+*/
