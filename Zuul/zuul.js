@@ -4,7 +4,7 @@
 var display,
 	rooms = [],
 	items = [],
-	directions = [],
+	actions = [],
 	vocabulary = [];
 
 var player = {
@@ -16,10 +16,10 @@ var player = {
     getVerb: function() { return vocabulary[(this.lastInput[0] || '')]; },
     getItem: function() { return vocabulary[(this.lastInput[1] || '')]; },
     move: function(nw) { this.current = nw; },
-    loc: function() { return this.current; },
+    getLoc: function() { return this.current; },
     holding: function() { return this.inventory.length; },
     toting: function(i) { return this.inventory.indexOf(i) != -1; },
-    take: function(i) {
+    do_take: function(i) {
     	var here = rooms[this.current].getItems();
     	i = i || -1; // when i==0, it will be false, so -1
     	if (!here.length) return 'There\'s nothing here'; // i is array
@@ -32,7 +32,7 @@ var player = {
 		this.inventory.push(i); // we push the reffered item
 		return items[i].getName().toProperCase() + ' taken.';
     },
-    drop: function() {
+    do_drop: function() {
     	if (this.holding() === 0) return 'You don\'t carry anything';
     	else {
     		var s = '';
@@ -46,12 +46,15 @@ var player = {
     		return s;
     	}
     },
-    takeInventory: function () {
+    do_inventory: function () {
     	var s = (this.inventory.length > 0) ? 'You hold:\n' : 'You don\'t hold anything\n';
         this.inventory.forEach(function (e, i) {
             s += '- ' + items[e].show() + '\n';
         });
         return s.slice(0, -1);
+    },
+    do_look: function () {
+    	return rooms[this.getLoc()].look();
     }
 };
 
@@ -70,14 +73,14 @@ function Act(target, cmd) {
     this.cmd = cmd;
 }
 
-function Item(name, description, room) {
-	room = room || 0;
+function Item(name, description) {
+	//room = room || 0;
 	this.name = name;
 	this.status = 0;
 	this.message = [description];
-	var index = items.length;
-	vocabulary[name] = 200 + index; // add to vocabulary
-	if (room) rooms[room].drop(index); // drop in room
+	//var index = items.length;
+	//vocabulary[name] = 200 + index; // add to vocabulary
+	//if (room) rooms[room].drop(index); // drop in room
 }
 Item.prototype = {
 	constructor: Item,
@@ -109,47 +112,35 @@ Room.prototype = {
 		var s = this.name + '\n';
 		this.items.forEach(function (e, i) { s += items[e].look() + '\n'; });
 		s += 'Valid exits: ';
-		this.exits.forEach(function (e, i) { s += directions[e.command] + ', '; });
+		this.exits.forEach(function (e, i) { s += e.command + ', '; });
 		return s.slice(0, -2);
 	}
 };
 
-function Exit(cmd, target) {
-    this.command = cmd;
-    this.target = target;
+function Exit(target, command, condition) {
+	this.target = target;
+	this.command = command;
+	this.condition = condition;
 }
 
 function doAction(a, it) {
-	atype = a/100>>0;
-	switch (atype) {
-	case 0:
+	atype = actions[a][0];
+	console.log(atype);
+	if (atype == 'go') {
 	    var cl = rooms[player.loc()];
-	    var nl = cl.move(a);
+	    var nl = cl.move(actions[a][1]);
 	    if (nl == -1) write('No possible exit');
 	    else {
 	        player.move(nl);
 	        write(rooms[player.loc()].look());
 	    }
-	    break;
-	case 1:
-		switch (a%100) {
-		case 1:
-			write(player.take(it%100)); break;
-		case 2:
-			write(player.drop(it%100)); break;
-		case 8:
-			write(rooms[player.loc()].look(it%100)); break;
-		case 9:
-			write(player.takeInventory()); break;
-		default:
-			write('Sorry, don\'t know how');
-		}
-		break;
-	case 2:
-		write('OK');
-		break;
-		
 	}
+	else if (atype == 'do') {
+		write(player['do_'+actions[a][1]](it));
+		//write('Sorry, don\'t know how');
+	}
+	else write('OK');
+
 }
 
 function processCommand() {
@@ -171,13 +162,46 @@ function find(name) {
 }
 
 function init() {
-
+	var count = 0;
+	
 	display = document.getElementById("display");
 	command = document.getElementById("command");
     // Install command line listener
     command.onkeypress = function(event) {
     	if (event.keyCode == 13) processCommand();
     };
+	
+    rooms[0] = new Room('lingo');
+	for (count in database.rooms) {
+		rooms[database.rooms[count][0]] = new Room(database.rooms[count][1]);
+	}
+	
+	for (count in database.exits) {
+		rooms[database.exits[count][0]].addExit( new Exit(
+				database.exits[count][1],
+				database.exits[count][2],
+				database.exits[count][3] || 0
+		));
+	}
+	
+	len = database.words.length;
+	for (count in database.words) { 
+		actions[+count + 1] = [database.words[count][0], database.words[count][1]];
+		vocabulary[database.words[count][1]] = +count + 1; // do not start at 0
+		var syn = database.words[count].slice(2);
+		for (var s in syn) vocabulary[syn[s]] = +count + 1;	
+	}
+	
+	items.push( new Item('', '') );  // items 0 is not to be used (tests go wrong ...)
+	for (count in database.items) {
+		items.push( new Item(database.items[count][0], database.items[count][1]) );
+		rooms[database.items[count][2]].drop(+count+1); // drop in room
+	}
+	
+//    console.log(rooms);
+//    console.log(items);
+//    console.log(actions);
+//    console.log(vocabulary);
 	
 	
 // +---+   +---+         
@@ -191,67 +215,8 @@ function init() {
 //	       +-v-+         
 //	       | 6 |         
 //	       +---+ 
-	rooms = [
-         new Room('dead'),
-         new Room('1: Big room'),
-         new Room('2: Winding stairs'),
-         new Room('3: Cellar'),
-         new Room('4: Market square'),
-         new Room('5: West gates'),
-         new Room('6: Storage room')
-    ];
-    rooms[1].addExit( new Exit(12, 2) );
-    rooms[1].addExit( new Exit(16, 3) );
-    rooms[2].addExit( new Exit(14, 1) );
-    rooms[2].addExit( new Exit(13, 4) );
-    rooms[3].addExit( new Exit(12, 4) );
-    rooms[4].addExit( new Exit(14, 3) );
-    rooms[4].addExit( new Exit(11, 2) );
-    rooms[4].addExit( new Exit(12, 5) );
-    rooms[4].addExit( new Exit(13, 6) );
-    rooms[5].addExit( new Exit(14, 4) );
-    rooms[6].addExit( new Exit(11, 4) );
-    
-    // 11=n, 12=e, 13=s, 14=w
-    directions[11] = 'north';
-    directions[12] = 'east';
-    directions[13] = 'south';
-    directions[14] = 'west';
-    directions[15] = 'up';
-    directions[16] = 'down';
-    
-    items.push( new Item('', '') );  // items 0 is not to be used (tests go wrong ...)
-    items.push( new Item('keys', 'a set of keys', 1) ); 
-    items.push( new Item('axe', 'a giant axe', 6) );
-    items.push( new Item('book', 'a dwarvish book', 3) );
-    items.push( new Item('gold', 'a bar of gold') );
 
-    vocabulary.north = 11;
-    vocabulary.n = 11;
-    vocabulary.south = 13;
-    vocabulary.s = 13;
-    vocabulary.east = 12;     
-    vocabulary.e = 12;
-    vocabulary.west = 14;
-    vocabulary.w = 14;
-    vocabulary.up = 15;
-    vocabulary.u = 15;
-    vocabulary.down = 16;
-    vocabulary.d = 16;
-
-    vocabulary.get = 101;
-    vocabulary.take = 101;
-    vocabulary.tote = 101;
-    vocabulary.pick = 101;
-    vocabulary.drop = 102;
-    vocabulary.dump = 102;
-    vocabulary.leave = 102;
-    vocabulary.look = 108;
-    vocabulary.show = 108;
-    vocabulary.invent = 109;
-    vocabulary.inventory = 109;
-
-    write(rooms[player.loc()].look());
+    write(rooms[player.getLoc()].look());
 	command.value = '';
 	//Give focus to command line.
 	command.focus();
