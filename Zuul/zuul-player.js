@@ -15,15 +15,20 @@ var player = {
 		if (!action) main.write('I don\'t know that word');
 		else main.doAction(action, player.getItem());
 	},
-	getVerb: function() { return main.vocabulary[(this.lastInput[0] || '')]; },
-    getItem: function() { return main.vocabulary[(this.lastInput[1] || '')]; },
-    move: function(nw) { this.current = nw; return main.rooms[nw].look(); },
+	// -1: no word given, undefined: unknown word, >0 valid word
+	getVerb: function() { return (this.lastInput.length>0)?main.vocabulary[(this.lastInput[0] || '')]:-1; },
+    getItem: function() { return (this.lastInput.length>1)?main.vocabulary[(this.lastInput[1] || '')]:-1; },
+    move: function(go) { 
+	    var currLoc = this.rooms[this.getLoc()];
+	    var newLoc = currLoc.move(go);
+	    if (newLoc == -1) return 'No possible exit';
+	    else return main.rooms[this.current = newLoc].look();
+    },
     getLoc: function() { return this.current; },
     holding: function() { return this.inventory.length; },
     toting: function(i) { return this.inventory.indexOf(i) != -1; },
     do_take: function(i) {
-    	// check if an item was specified (when i==0, it will be false, so -1)
-    	i = i || -1;
+    	// check if an item was specified (-1 if not)
     	if (i == -1) {
 	    	// list of items in this room 
 	    	var items_here = main.rooms[this.current].getItems();
@@ -70,5 +75,8 @@ var player = {
     },
     do_look: function () {
     	return main.rooms[this.getLoc()].look();
-    }
+    },
+
 };
+
+

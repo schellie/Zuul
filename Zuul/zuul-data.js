@@ -22,18 +22,18 @@ var database = {
 	    [7, 'Outside gate']
 	],
 	exits: [
-		[1, 2, 'east', 0],
-		[1, 3, 'down', 0],
-		[2, 1, 'west', 0],
-		[2, 4, 'south', 0],
-		[3, 4, 'east', 0],
-		[4, 3, 'west', 0],
-		[4, 2, 'north', 0],
-		[4, 5, 'east', 0],
-		[4, 6, 'south', 0],
-		[5, 4, 'west', 0],
+		[1, 2, 'east', 1],
+		[1, 3, 'down', 1],
+		[2, 1, 'west', 1],
+		[2, 4, 'south', 1],
+		[3, 4, 'east', 1],
+		[4, 3, 'west', 1],
+		[4, 2, 'north', 1],
+		[4, 5, 'east', 1],
+		[4, 6, 'south', 1],
+		[5, 4, 'west', 1],
 		[5, 7, 'east', 'gate:1'],
-		[6, 4, 'north', 0],
+		[6, 4, 'north', 1],
 		[7, 5, 'west', 'gate:1']
 	],
 	items: [
@@ -42,6 +42,9 @@ var database = {
 	    ['book', 'a dwarvish book', 3],
 	    ['gold', 'a bar of gold', 0],
 	    ['gate', 'a gate with solid iron bars', 5, 7]
+	],
+	itemstates: [
+	    ['gate', 'an open gate']
 	],
 	words: [
 	    ['go', 'north', 'n'],
@@ -61,5 +64,3 @@ var database = {
 	    ['do', 'look', 'examine', 'touch', 'describe']
 	]
 };
-
-   

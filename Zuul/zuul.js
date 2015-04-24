@@ -36,20 +36,22 @@ var main = {
 	},
 	find: function(name) { return function (e) { if (e.name == name) return true; else return false; }; },
 	doAction: function(a, it) {
-		var atype = this.actions[a][0];
-		if (atype == 'go') {
-		    var currLoc = this.rooms[player.getLoc()];
-		    var newLoc = currLoc.move(this.actions[a][1]);
-		    if (newLoc == -1) this.write('No possible exit');
-		    else this.write(player.move(newLoc));
+		// a: -1, >0 it: -1, undefined, >0
+		if (a == -1) this.write('What?');
+		else {
+			var atype = this.actions[a][0];
+			if (atype == 'go') this.write(player.move(this.actions[a][1]));
+			else if (atype == 'do') { // differentiate between illegal item and no item
+				if (!it) this.write('Sorry, I don\'t know how');
+				else {
+					var is = (it == -1) ? -1 : this.actions[it];
+					is = is[2] || -1;
+					this.write(player['do_' + this.actions[a][1]](is) );
+				}
+			}
+			else this.write('OK');
 		}
-		else if (atype == 'do') { // differentiate between illegal item and no item
-			var is = (it===undefined)?-1:this.actions[it];
-			//var item = (is==-1||is[0]!='is')?-1:this.items[is[2]];
-			if (is == -1) this.write('Sorry, don\'t know how');
-			else this.write(player['do_' + this.actions[a][1]](is[2]) );
-		}
-		else this.write('OK');
+
 	},
 	init_db: function() {
 		var count;
@@ -101,6 +103,10 @@ var main = {
 			}
 			this.actions[a].push(+count+1);
 		}
+		for (count in database.itemstates) {
+			console.log(database.itemstates[count][0]);
+			//this.items[this.action[this.vocabulary[database.itemstates[count][0]]][2]].addStatus(database.itemstates[count][1]);
+		}
 		console.log(this.rooms);
 		console.log(this.items);
 		console.log(this.actions);
@@ -133,7 +139,8 @@ Room.prototype = {
 	here: function(i) { return this.items.indexOf(i) >= 0; },
 	move: function(d) {
 		for (var e in this.exits) {
-			if (this.exits[e].command == d) return this.exits[e].target;
+			if (this.exits[e].command == d) 
+				if (this.exits[e].checkCondition()) return this.exits[e].target;
 		}
 		return -1;
 	},
@@ -155,6 +162,14 @@ function Exit(target, command, condition) {
 	this.command = command;
 	this.condition = condition;
 }
+Exit.prototype = {
+	constructor: Exit,
+	checkCondition: function() {
+		if (this.condition == 1) return true;
+		return true;
+	}
+};
+
 
 /**
  * Item class, properties and methods of various items present in the game
