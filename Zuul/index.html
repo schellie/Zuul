@@ -6,13 +6,14 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <script type="text/javascript" src="zuul-data.js"></script>
     <script type="text/javascript" src="zuul.js"></script>
+    <script type="text/javascript" src="zuul-player.js"></script>
 </head>
 
-<body class="body" onload="init()">
+<body class="body" onload="main.init_db()">
 <table>
-    <tr><td></td><td><button onclick='doAction(11)'>N</button></td><td></td></tr>
-    <tr><td><button onclick='doAction(14)'>W</button></td><td></td><td><button onclick='doAction(12)'>E</button></td></tr>
-    <tr><td></td><td><button onclick='doAction(13)'>S</button></td><td></td></tr>
+    <tr><td></td><td><button onclick='main.doAction(main.vocabulary["n"])'>N</button></td><td></td></tr>
+    <tr><td><button onclick='main.doAction(main.vocabulary["w"])'>W</button></td><td></td><td><button onclick='main.doAction(main.vocabulary["e"])'>E</button></td></tr>
+    <tr><td></td><td><button onclick='main.doAction(main.vocabulary["s"])'>S</button></td><td></td></tr>
 </table>
 <table>
 	<tr><td>
