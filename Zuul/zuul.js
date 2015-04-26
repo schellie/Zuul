@@ -25,42 +25,79 @@ Object.defineProperty(Object.prototype, "keyOf", {
 var main = {
 	display: {},
 	command: {},
+	logging: true,
 	rooms: [],
 	items: [],
 	actions: [],
 	vocabulary: [],
+	messages: [],
 	write: function(s, noprompt) {
 		noprompt = (noprompt === 'undefined')?false:noprompt;
 		this.display.innerHTML += s + '\n' + (noprompt?'':'> ');
 		this.display.scrollTop = this.display.scrollHeight;
 	},
+	speak: function(s, param) {
+		//if (typeof(param) == "string") param = [param]; // make sure we have an array ... 
+		if (typeof(s) == 'number') 
+			// TODO: replace global with array
+			return this.write(this.messages[s].replace(/%s/, param), false);	
+		else if (typeof(s) == 'string') 
+			return this.write(s.replace(/%s/, param), false);
+	},
+	speakUnknown: function() {
+		if (this.percent(20)) this.speak(4);
+		else if (this.percent(30)) this.speak(5);
+		else this.speak(6);
+		return;
+	},
+	log: function(s) { if (this.isLogging()) console.log(s); },
 	find: function(name) { return function (e) { if (e.name == name) return true; else return false; }; },
-	doAction: function(a, it) {
-		// a: -1, >0 it: -1, undefined, >0
-		if (a == -1) this.write('What?');
-		else {
-			var atype = this.actions[a][0];
-			if (atype == 'go') this.write(player.move(this.actions[a][1]));
-			else if (atype == 'do') { // differentiate between illegal item and no item
-				if (!it) this.write('Sorry, I don\'t know how');
-				else {
-					var is = (it == -1) ? -1 : this.actions[it];
-					is = is[2] || -1;
-					this.write(player['do_' + this.actions[a][1]](is) );
-				}
+	percent: function(n) { return 100*Math.random() < n; },
+	toggleLogging: function() {
+		this.logging = !this.logging;
+		return this.logging ? this.speak(2) : this.speak(3);
+	},
+	isLogging: function() { return this.logging; },
+	doAction: function(vb, it) {
+		var type;
+		// vb, it: -1 not found, =0 no word, >0 word number
+		if (vb <= 0) return this.speakUnknown();
+		type = this.actions[vb][0];
+		if (type == 'go') return this.speak(player.move(this.actions[vb][1]));
+		if (type == 'do') {
+			// if no item we pass on
+			if (it === 0) return this.speak(player['do_' + this.actions[vb][1]](0));
+			// check if valid item
+			if (it != -1 && this.actions[it][0] == 'is') 
+				return this.speak(player['do_' + this.actions[vb][1]](this.actions[it][2]));
+			return this.speak(7);
+		}
+		if (type == 'is') {
+			// if no item we don't know what to do
+			if (it === 0) {
+				if (!player.here(this.actions[vb][2])) // item not present
+					return this.speak(8, this.actions[vb][1]);
+				else return this.speak(9, this.actions[vb][1]);
 			}
-			else this.write('OK');
+			// if 2nd is action we can do something
+			if (it != -1 && this.actions[it][0] == 'do') 
+				return this.speak(player['do_' + this.actions[it][1]](this.actions[vb][2]));
+			return speak(1);
 		}
 
 	},
 	init_db: function() {
-		var count;
+		var count = 0;
 		// initialize references to elements on HTML page
 		this.display = document.getElementById("display");
 		this.command = document.getElementById("command");
 	    // Install command line listener
 	    this.command.onkeypress = function(event) { if (event.keyCode == 13) player.processCommand(); };
-		// fill the rooms
+		// read in the messages
+		for (count in database.messages) {
+			this.messages[database.messages[count][0]] = database.messages[count][1];
+		}	    
+	    // fill the rooms
 	    this.rooms[0] = new Room('lingo');
 		for (count in database.rooms) {
 			this.rooms[database.rooms[count][0]] = new Room(database.rooms[count][1]);
@@ -93,7 +130,7 @@ var main = {
 				this.items[+count+1].setFixed();
 				if (fixed > 0) this.rooms[fixed].drop(+count+1);
 			}
-			// create ref. in actions, and add if it should exist
+			// create ref. in actions, and add if it shouldn't exist
 			var a = this.vocabulary[this.items[+count+1].name];
 			if (a === undefined) {
 				console.log('item added to vocabulary: ' + this.items[+count+1].name);
@@ -103,93 +140,26 @@ var main = {
 			}
 			this.actions[a].push(+count+1);
 		}
+		// add various statuses to items
 		for (count in database.itemstates) {
-			console.log(database.itemstates[count][0]);
-			//this.items[this.action[this.vocabulary[database.itemstates[count][0]]][2]].addStatus(database.itemstates[count][1]);
+			var it = this.items.filter(this.find(database.itemstates[count][0]));
+			if (it.length > 0) it[0].addStatus(database.itemstates[count][1]);
+			else console.log(database.itemstates[count][0] + 'not found in items');
 		}
-		console.log(this.rooms);
-		console.log(this.items);
-		console.log(this.actions);
-		console.log(this.vocabulary);
+		this.log(this.messages);
+		this.log(this.rooms);
+		this.log(this.items);
+		this.log(this.actions);
+		this.log(this.vocabulary);
+		
 		this.start(); // ok, now go
 	},
 	start: function() {
-		this.write(player.move(1)); // start player in room 1, this will also generate a description of the room
+		// player will start in room 1
+		player.setRoom(1);
+		this.write(player.do_look()); // generate a description of the room
 		this.command.value = ''; // clear command line
 		this.command.focus(); // and give focus to command line
 	}
 };
-
-
-/**
- * Room class, defines properties and methods for a room/location in the game
- * Room 0 is considered to be death (compares to 0 are sometimes not as expected ...)
- */
-function Room(name) {
-    this.name = name;
-    this.exits = [];
-    this.items = [];
-}
-Room.prototype = {
-	constructor: Room,
-	addExit: function(exit) { this.exits.push(exit); },
-	getItems: function() { return this.items; },
-	drop: function(i) { this.items.push(i); },
-	take: function(i) { this.items.splice(this.items.indexOf(i), 1); },
-	here: function(i) { return this.items.indexOf(i) >= 0; },
-	move: function(d) {
-		for (var e in this.exits) {
-			if (this.exits[e].command == d) 
-				if (this.exits[e].checkCondition()) return this.exits[e].target;
-		}
-		return -1;
-	},
-	look: function() {
-		var s = this.name + '\n';
-		this.items.forEach(function (e, i) { s += main.items[e].look() + '\n'; });
-		s += 'Valid exits: ';
-		this.exits.forEach(function (e, i) { s += e.command + ', '; });
-		return s.slice(0, -2);
-	}
-};
-
-/**
- * Exit class, exits are static and need only to be added to Rooms
- * Maybe a method 'validate conditions' is needed (part of move?)
- */
-function Exit(target, command, condition) {
-	this.target = target;
-	this.command = command;
-	this.condition = condition;
-}
-Exit.prototype = {
-	constructor: Exit,
-	checkCondition: function() {
-		if (this.condition == 1) return true;
-		return true;
-	}
-};
-
-
-/**
- * Item class, properties and methods of various items present in the game
- * Item 0 is not used
- */
-function Item(name, description) {
-	this.name = name;
-	this.status = 0;
-	this.message = [description];
-	this.fixed = false;
-}
-Item.prototype = {
-	constructor: Item,
-	getName: function() { return this.name; },
-	addStatus: function(m) { this.message.push(m); },
-	show: function() { return this.message[this.status]; },
-	look: function() { return 'There is ' + this.show() + ' here.'; },
-	isFixed: function() { return this.fixed; },
-	setFixed: function() {  this.fixed = true; }
-};
-
-
 
