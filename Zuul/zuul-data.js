@@ -46,7 +46,12 @@ var database = {
 	    ['database', 'fake item, used for debugging only', 0]
 	],
 	itemstates: [
-	    ['gate', 'an unlocked iron gate']
+	    ['gate', 'an unlocked iron gate'],
+	    ['lamp', 'a lit brass lamp']
+	],
+	itemproperties: [
+	    ['lamp', 'light'],
+	    ['gate', 'lock']
 	],
 	words: [
 	    ['go', 'north', 'n'],
@@ -126,6 +131,14 @@ var database = {
 	    [30, 'You don\'t carry anything.'],
 	    [31, 'You\'re not carrying the %s'],
 	    [32, '%s dropped.'],
+	    //Unlock, 35=no item given, 36=lots of items, 37=item not present, 
+	    //        38=wrong property, 39=no keys, 40=unlocked
+	    [35, 'There is nothing here with a lock!'],
+	    [36, 'I don\'t which one to take ...'],
+	    [37, 'I see no %s here.'],
+	    [38, '%s has no locked.'],
+	    [39, 'You don\'t have keys.'],
+	    [40, 'Unlocked the %s.']
 	    
 	]
 };

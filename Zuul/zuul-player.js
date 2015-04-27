@@ -32,18 +32,18 @@ var player = {
     setRoom: function(newRoom) { this.currentRoom = newRoom; },
     holding: function() { return this.inventory.length; },
     toting: function(i) { return this.inventory.indexOf(i) != -1; },
-    here: function(i) { return (this.toting(i) || this.getRoom().here(i)); },
+    here: function(i) { return (this.toting(i) || main.rooms[this.getRoom()].here(i)); },
     do_take: function(i) {
     	if (i === 0) {  // no item specified
 	    	// list of items in this room 
-	    	var items_here = main.rooms[this.currentRoom].getItems();
+	    	var items_here = main.rooms[this.getRoom()].getItems();
 	    	// check whether there's something we could take
 	    	if (!items_here.length) return 20;
     		if (items_here.length == 1) i = items_here[0]; // point to the one item
     		else return 21; // more items here
     	}
 		//var item = items.filter(main.find())
-    	main.log(i, main.actions[i]);
+    	main.log('take:'+i, main.actions[i]);
     	// do we have it already?
     	if (this.toting(i)) return 22;
     	// is the item present?
@@ -53,7 +53,7 @@ var player = {
     	// carrying the limit?
     	if (this.holding() == this.maxItems) return 25; 
    		// now we can take ...
-		main.rooms[this.currentRoom].take(i); 
+		main.rooms[this.getRoom()].take(i); 
 		this.inventory.push(i); // we push the reffered item
 		return [26, main.items[i].getName()]; 
 	},
@@ -62,7 +62,7 @@ var player = {
     	if (i === 0) { // no item specified, drop everything
     		var s = '';
     		for (var t in this.inventory) {
-    			main.rooms[this.currentRoom].drop(this.inventory[t]);
+    			main.rooms[this.getRoom()].drop(this.inventory[t]);
     			s += main.items[this.inventory[t]].getName().toProperCase() + ' dropped.\n';
     		}
     		this.inventory = []; // clear inventory
@@ -70,81 +70,114 @@ var player = {
     	}
     	if (!this.toting(i)) return [31, main.items[i].getName()];
     	main.rooms[this.getRoom()].drop(i);
-    	main.log(this.inventory);
+    	main.log('drop (inventory):'+this.inventory);
     	this.inventory.splice(this.inventory.indexOf(i), 1);
     	return [32, main.items[i].getName()];
     },
     do_open: function(i) {
     	if (i === 0) { // no item specified
-    	}    	
+	    	// list of items in this room 
+	    	var items_here = main.rooms[this.getRoom()].getItems();
+	    	// check whether there's something we could open/unlock
+	    	if (!items_here.length) return 35;
+    		if (items_here.length == 1) i = items_here[0]; // point to the one item
+    		else return 36; // more items here    	
+    	}
+    	if (!this.here(i)) return [37, main.items[i].getName()];
+    	// can it be locked
+    	if (!main.items[i].isLockable()) return [38, main.items[i].getName()];
+    	// TODO: this is hardcoded; should find a way to specify actor and object 
+    	main.log(main.actions[main.vocabulary.keys][2]);
+    	if (!this.here(main.actions[main.vocabulary.keys][2])) return 39;
+    	// unlock
+    	main.items[i].incrStatus();
+    	return [40, main.items[i].getName()];
     },
     do_close: function(i) {
     	if (i === 0) { // no item specified
     	}    	
+    	return 1;
     },
     do_on: function(i) {
     	if (i === 0) { // no item specified
     	}    	
+    	return 1;
     },
     do_off: function(i) {
     	if (i === 0) { // no item specified
     	}    	
+    	return 1;
     },
     do_say: function() {
     	
+    	return 1;
     },
     do_wave: function(i) {
     	if (i === 0) { // no item specified
     	}    	
+    	return 1;
     },
     do_go: function(i) {
     	
+    	return 1;
     },
     do_attack: function(i) {
     	if (i === 0) { // no item specified
     	}    	
+    	return 1;
     },
     do_eat: function(i) {
     	if (i === 0) { // no item specified
     	}    	
+    	return 1;
     },
     do_drink: function(i) {
     	if (i === 0) { // no item specified
     	}    	
+    	return 1;
     },
     do_throw: function(i) {
     	if (i === 0) { // no item specified
     	}    	
+    	return 1;
     },
     do_find: function(i) {
     	if (i === 0) { // no item specified
     	}    	
+    	return 1;
     },
     do_rub: function(i) {
     	if (i === 0) { // no item specified
     	}    	
+    	return 1;
     },
     do_fill: function(i) {
     	if (i === 0) { // no item specified
     	}    	
+    	return 1;
     },
     do_blast: function(i) {
     	if (i === 0) { // no item specified
     	}    	
+    	return 1;
     },
     do_score: function() {
     	
+    	return 1;
     },
     do_brief: function() {
     	
+    	return 1;
     },
     do_read: function(i) {
     	if (i === 0) { // no item specified
     	}    	
+    	return 1;
     },
     do_break: function(i) {
     	if (i === 0) { // no item specified
     	}    	
+    	return 1;
     },
     do_inventory: function () {
     	var s = (this.inventory.length > 0) ? 'You hold:\n' : 'You don\'t hold anything\n';

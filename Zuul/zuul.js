@@ -60,6 +60,7 @@ var main = {
 	isLogging: function() { return this.logging; },
 	doAction: function(vb, it) {
 		var type;
+		main.log('verb:'+vb+', item:'+it);
 		// vb, it: -1 not found, =0 no word, >0 word number
 		if (vb <= 0) return this.speakUnknown();
 		type = this.actions[vb][0];
@@ -142,9 +143,15 @@ var main = {
 		}
 		// add various statuses to items
 		for (count in database.itemstates) {
-			var it = this.items.filter(this.find(database.itemstates[count][0]));
-			if (it.length > 0) it[0].addStatus(database.itemstates[count][1]);
+			var is = this.items.filter(this.find(database.itemstates[count][0]));
+			if (is.length > 0) is[0].addStatus(database.itemstates[count][1]);
 			else console.log(database.itemstates[count][0] + 'not found in items');
+		}
+		// read properties for items
+		for (count in database.itemproperties) {
+			var ip = this.items.filter(this.find(database.itemproperties[count][0]));
+			if (ip.length > 0) ip[0].addProp(database.itemproperties[count][1]);
+			else console.log(database.itemproperties[count][0] + 'not found in items');
 		}
 		this.log(this.messages);
 		this.log(this.rooms);
