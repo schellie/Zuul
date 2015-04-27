@@ -33,16 +33,16 @@ var main = {
 	messages: [],
 	write: function(s, noprompt) {
 		noprompt = (noprompt === 'undefined')?false:noprompt;
-		this.display.innerHTML += s + '\n' + (noprompt?'':'> ');
+		this.display.innerHTML += s.toProperCase() + '\n' + (noprompt?'':'> ');
 		this.display.scrollTop = this.display.scrollHeight;
 	},
-	speak: function(s, param) {
-		//if (typeof(param) == "string") param = [param]; // make sure we have an array ... 
-		if (typeof(s) == 'number') 
+	speak: function(prm) {
+		if (typeof(prm) == 'number') return this.write(this.messages[prm], false);
+		else if (typeof(prm) == 'string') return this.write(prm, false);
+		else {
 			// TODO: replace global with array
-			return this.write(this.messages[s].replace(/%s/, param), false);	
-		else if (typeof(s) == 'string') 
-			return this.write(s.replace(/%s/, param), false);
+			return this.write(this.messages[prm[0]].replace(/%s/, prm[1]), false);
+		}
 	},
 	speakUnknown: function() {
 		if (this.percent(20)) this.speak(4);

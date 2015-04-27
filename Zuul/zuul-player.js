@@ -20,7 +20,7 @@ var player = {
 	    var currRoom = main.rooms[this.getRoom()];
 	    var newRoom = currRoom.move(go);
 	    if (newRoom < 0) {
-	    	if (newRoom === 0) return 10;
+	    	if (newRoom == -1) return 10;
 	    	if (newRoom == -2) return 11;
 	    }
 	    else { 
@@ -38,41 +38,41 @@ var player = {
 	    	// list of items in this room 
 	    	var items_here = main.rooms[this.currentRoom].getItems();
 	    	// check whether there's something we could take
-	    	if (!items_here.length) return 'There\'s nothing here to take.';
+	    	if (!items_here.length) return 20;
     		if (items_here.length == 1) i = items_here[0]; // point to the one item
-    		else return 'Please be more specific.'; // more items here
+    		else return 21; // more items here
     	}
 		//var item = items.filter(main.find())
-    	console.log(i, main.actions[i]);
+    	main.log(i, main.actions[i]);
     	// do we have it already?
-    	if (this.toting(i)) return 'You are already carrying it.';
+    	if (this.toting(i)) return 22;
     	// is the item present?
-    	if (!main.rooms[this.currentRoom].here(i)) return 'No ' + main.items[i].getName() + ' here.';
+    	if (!main.rooms[this.getRoom()].here(i)) return [23, main.items[i].getName()]; //return 'No ' + main.items[i].getName() + ' here.';
     	// check whether it is fixed in place
-    	if (main.items[i].isFixed()) return 'The ' + main.items[i].getName() + ' cannot be moved.';
+    	if (main.items[i].isFixed()) return [24, main.items[i].getName()];//return 'The ' + main.items[i].getName() + ' cannot be moved.';
     	// carrying the limit?
-    	if (this.holding() == this.maxItems) return 'Your bag is full'; 
+    	if (this.holding() == this.maxItems) return 25; 
    		// now we can take ...
 		main.rooms[this.currentRoom].take(i); 
 		this.inventory.push(i); // we push the reffered item
-		return main.items[i].getName().toProperCase() + ' taken.';
-    },
+		return [26, main.items[i].getName()]; 
+	},
     do_drop: function(i) {
-    	if (i === 0) { // no item specified
-    	}
-
-    	if (this.holding() === 0) return 'You don\'t carry anything';
-    	else {
+    	if (this.holding() === 0) return 30;
+    	if (i === 0) { // no item specified, drop everything
     		var s = '';
     		for (var t in this.inventory) {
-    			//var ref = main.items.indexOf(this.inventory[t]); // get a reference for this item
     			main.rooms[this.currentRoom].drop(this.inventory[t]);
     			s += main.items[this.inventory[t]].getName().toProperCase() + ' dropped.\n';
     		}
-    		// clear inventory
-    		this.inventory = [];
+    		this.inventory = []; // clear inventory
     		return s;
     	}
+    	if (!this.toting(i)) return [31, main.items[i].getName()];
+    	main.rooms[this.getRoom()].drop(i);
+    	main.log(this.inventory);
+    	this.inventory.splice(this.inventory.indexOf(i), 1);
+    	return [32, main.items[i].getName()];
     },
     do_open: function(i) {
     	if (i === 0) { // no item specified

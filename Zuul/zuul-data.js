@@ -42,8 +42,7 @@ var database = {
 	    ['book', 'a dwarvish book', 3],
 	    ['gold', 'a bar of gold', 0],
 	    ['gate', 'a gate with solid iron bars', 5, 7],
-	    ['on', 'lights on', 0],
-	    ['off', 'lights off', 0],
+	    ['lamp', 'a brass lamp', 2],
 	    ['database', 'fake item, used for debugging only', 0]
 	],
 	itemstates: [
@@ -68,11 +67,12 @@ var database = {
 	    ['is', 'book'],
 	    ['is', 'database'],
 	    ['is', 'gate', 'grate', 'bars'],
+	    ['is', 'lamp', 'light', 'lantern'],
 	    ['do', 'take', 'get', 'carry', 'keep', 'catch', 'steal', 'capture', 'tote'],
 	    ['do', 'drop', 'release', 'free', 'discard', 'dump'],
 	    ['do', 'open', 'unlock'],
 	    ['do', 'close', 'lock'],
-	    ['do', 'on', 'light', 'lamp', 'lantern'],
+	    ['do', 'on'],
 	    ['do', 'off', 'extinguish' ],
 	    ['do', 'say', 'chant', 'sing', 'utter', 'mumble', 'talk'],
 	    ['do', 'wave', 'shake', 'swing'],
@@ -113,5 +113,19 @@ var database = {
 	    //Travel, 10=no exit, 11=conditions not met
 	    [10, 'There is no way to go there.'],
 	    [11, 'That exit is blocked.'],
+	    //Take, 20=nothing here, 21=lots of items, 22=have already, 23=item not present
+	    //      24=item fixed, 25=carry too much, 26=taken
+	    [20, 'There\'s nothing here to take.'],
+	    [21, 'Please be more specific.'],
+	    [22, 'You are already carrying it.'],
+	    [23, 'No %s here.'],
+	    [24, 'The %s cannot be moved.'],
+	    [25, 'Your bag is full.'],
+	    [26, '%s taken.'],
+	    //Drop, 30=carry nothing, 31=not carrying item, 32=dropped
+	    [30, 'You don\'t carry anything.'],
+	    [31, 'You\'re not carrying the %s'],
+	    [32, '%s dropped.'],
+	    
 	]
 };
