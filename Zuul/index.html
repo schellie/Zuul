@@ -12,11 +12,11 @@
     <script type="text/javascript" src="zuul-item.js"></script>
 </head>
 
-<body class="body" onload="main.init_db()">
+<body class="body" onload="init_data()">
 <table>
-    <tr><td></td><td><button onclick='main.doAction(main.vocabulary["n"])'>N</button></td><td></td></tr>
-    <tr><td><button onclick='main.doAction(main.vocabulary["w"])'>W</button></td><td></td><td><button onclick='main.doAction(main.vocabulary["e"])'>E</button></td></tr>
-    <tr><td></td><td><button onclick='main.doAction(main.vocabulary["s"])'>S</button></td><td></td></tr>
+    <tr><td></td><td><button onclick='doAction(zuul.vocabulary["n"])'>N</button></td><td></td></tr>
+    <tr><td><button onclick='doAction(zuul.vocabulary["w"])'>W</button></td><td></td><td><button onclick='doAction(zuul.vocabulary["e"])'>E</button></td></tr>
+    <tr><td></td><td><button onclick='doAction(zuul.vocabulary["s"])'>S</button></td><td></td></tr>
 </table>
 <table>
 	<tr><td>

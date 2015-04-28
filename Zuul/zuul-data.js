@@ -11,17 +11,17 @@
 //         | 6 |         
 //         +---+ 
 
-var database = {
+var data = {
 	rooms: [
 	    [1, 'Big room'],
 	    [2, 'Winding stairs'],
 	    [3, 'Cellar'],
         [4, 'Market square'],
-        [5, 'West gates'],
+        [5, 'East gates'],
         [6, 'Storage room'],
 	    [7, 'Outside gate']
 	],
-	exits: [
+	exits: [ // from, to, command, condition
 		[1, 2, 'east', 1],
 		[1, 3, 'down', 1],
 		[2, 1, 'west', 1],
@@ -36,22 +36,14 @@ var database = {
 		[6, 4, 'north', 1],
 		[7, 5, 'west', 'gate:1']
 	],
-	items: [
-	    ['keys', 'a set of keys', 1],
-	    ['axe', 'a giant axe', 6],
-	    ['book', 'a dwarvish book', 3],
-	    ['gold', 'a bar of gold', 0],
-	    ['gate', 'a gate with solid iron bars', 5, 7],
-	    ['lamp', 'a brass lamp', 2],
-	    ['database', 'fake item, used for debugging only', 0]
-	],
-	itemstates: [
-	    ['gate', 'an unlocked iron gate'],
-	    ['lamp', 'a lit brass lamp']
-	],
-	itemproperties: [
-	    ['lamp', 'light'],
-	    ['gate', 'lock']
+	items: [ // name, message (status0), initial room, optional: fixed room# (or -1), list of properties
+	    ['keys', ['a set of keys'], 1, 'do:lock'],
+	    ['axe', ['a giant axe'], 6],
+	    ['book', ['a dwarvish book'], 3],
+	    ['gold', ['a bar of gold'], 0, 'has:treasure'],
+	    ['gate', ['a gate with solid iron bars', 'an unlocked iron gate'], 5, 7, 'has:lock'],
+	    ['lamp', ['a brass lamp', 'a lit brass lamp'], 2, 'has:light'],
+	    ['database', ['fake item, used for debugging only'], 0]
 	],
 	words: [
 	    ['go', 'north', 'n'],

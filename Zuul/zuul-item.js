@@ -2,14 +2,13 @@
  * Item class, properties and methods of various items present in the game
  * Item 0 is not used
  */
-function Item(name, description) {
+function Item(name) {
 	this.name = name;
 	this.status = 0;
-	this.message = [description];
+	this.message = [];
 	this.fixed = false;
 	// other properties for item
-	this.light = false;
-	this.lock = false;
+	this.props = [];
 }
 Item.prototype = {
 	constructor: Item,
@@ -19,7 +18,8 @@ Item.prototype = {
 	getStatus: function() { return this.status; },
 	incrStatus: function() { this.status++; },
 	decrStatus: function() { this.status--; },
-	addProp: function(p) { this[p] = true; },
+	addProp: function(p) { this.props.push(p); },
+	getProp: function(p) { return this.props.indexOf(p) >= 0; },
 	show: function() { return this.message[this.status]; },
 	look: function() { return 'There is ' + this.show() + ' here.'; },
 	setFixed: function() { this.fixed = true; },
