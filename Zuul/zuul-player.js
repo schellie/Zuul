@@ -2,7 +2,7 @@
  * Game data & functions, related to the zuul character: player
  */
 var player = {
-    currentRoom: 1,
+    currentRoom: {},
     maxItems: 3,
     inventory: [],
     lastInput: [],
@@ -15,26 +15,25 @@ var player = {
 	getVerb: function() { return (this.lastInput.length>0)?(zuul.vocabulary[this.lastInput[0]] || -1):0; },
     getItem: function() { return (this.lastInput.length>1)?(zuul.vocabulary[this.lastInput[1]] || -1):0; },
     move: function(go) { 
-	    var currRoom = zuul.rooms[this.getRoom()];
-	    var newRoom = currRoom.move(go);
+	    var newRoom = this.getRoom().move(go);
 	    if (newRoom < 0) {
 	    	if (newRoom == -1) return 10;
 	    	if (newRoom == -2) return 11;
 	    }
 	    else { 
 	    	this.setRoom(newRoom);
-	    	return zuul.rooms[newRoom].look();
+	    	return this.getRoom().look();
 	    }
     },
     getRoom: function() { return this.currentRoom; },
-    setRoom: function(newRoom) { this.currentRoom = newRoom; },
+    setRoom: function(newRoom) { this.currentRoom = zuul.rooms[newRoom]; },
     holding: function() { return this.inventory.length; },
     toting: function(i) { return this.inventory.indexOf(i) != -1; },
-    here: function(i) { return (this.toting(i) || zuul.rooms[this.getRoom()].here(i)); },
+    here: function(i) { return (this.toting(i) || this.getRoom().here(i)); },
     do_take: function(i) {
     	if (i === 0) {  // no item specified
 	    	// list of items in this room 
-	    	var items_here = zuul.rooms[this.getRoom()].getItems();
+	    	var items_here = this.getRoom().getItems();
 	    	// check whether there's something we could take
 	    	if (!items_here.length) return 20;
     		if (items_here.length == 1) i = items_here[0]; // point to the one item
@@ -45,15 +44,15 @@ var player = {
     	// do we have it already?
     	if (this.toting(i)) return 22;
     	// is the item present?
-    	if (!zuul.rooms[this.getRoom()].here(i)) return [23, zuul.items[i].getName()]; //return 'No ' + zuul.items[i].getName() + ' here.';
+    	if (!this.getRoom().here(i)) return [23, i.getName()]; 
     	// check whether it is fixed in place
-    	if (zuul.items[i].isFixed()) return [24, zuul.items[i].getName()];//return 'The ' + zuul.items[i].getName() + ' cannot be moved.';
+    	if (i.isFixed()) return [24, i.getName()];
     	// carrying the limit?
     	if (this.holding() == this.maxItems) return 25; 
    		// now we can take ...
-		zuul.rooms[this.getRoom()].take(i); 
-		this.inventory.push(i); // we push the reffered item
-		return [26, zuul.items[i].getName()]; 
+		i = this.getRoom().take(i); 
+		this.inventory.push(i[0]); // we push the reffered item
+		return [26, i[0].getName()]; 
 	},
     do_drop: function(i) {
     	if (this.holding() === 0) return 30;
@@ -73,23 +72,27 @@ var player = {
     	return [32, zuul.items[i].getName()];
     },
     do_open: function(i) {
+    	var p = 'lock';
     	if (i === 0) { // no item specified
 	    	// list of items in this room 
-	    	var items_here = zuul.rooms[this.getRoom()].getItems();
+	    	var items_here = this.getRoom().getItems();
 	    	// check whether there's something we could open/unlock
 	    	if (!items_here.length) return 35;
     		if (items_here.length == 1) i = items_here[0]; // point to the one item
     		else return 36; // more items here    	
     	}
-    	if (!this.here(i)) return [37, zuul.items[i].getName()];
-    	// can it be locked
-    	if (!zuul.items[i].isLockable()) return [38, zuul.items[i].getName()];
-    	// TODO: this is hardcoded; should find a way to specify actor and object 
-    	log(zuul.actions[zuul.vocabulary.keys][2]);
-    	if (!this.here(zuul.actions[zuul.vocabulary.keys][2])) return 39;
+    	if (!this.here(i)) return [37, i.getName()];
+    	// can it be locked? 
+    	// check properties and abilities in this place
+    	if (!i.hasProp(p)) return [38, i.getName()];
+    	var present = false;
+   		var ilist = this.getRoom().getItems();
+   		for (var a in ilist) if (ilist[a].hasAbility(p)) present = true;
+    	for (var b in this.inventory) if (this.inventory[b].hasAbility(p)) present = true;
+    	if (!present) return 39;
     	// unlock
-    	zuul.items[i].incrStatus();
-    	return [40, zuul.items[i].getName()];
+    	i.incrStatus();
+    	return [40, i.getName()];
     },
     do_close: function(i) {
     	if (i === 0) { // no item specified
@@ -180,12 +183,12 @@ var player = {
     do_inventory: function () {
     	var s = (this.inventory.length > 0) ? 'You hold:\n' : 'You don\'t hold anything\n';
         this.inventory.forEach(function (e, i) {
-            s += '- ' + zuul.items[e].show() + '\n';
+            s += '- ' + e.show() + '\n';
         });
         return s.slice(0, -1);
     },
     do_look: function () {
-    	return zuul.rooms[this.getRoom()].look();
+    	return this.getRoom().look();
     },
     do_log: function(i) {
     	if (i === 0) { // no item specified

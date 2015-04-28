@@ -13,7 +13,7 @@ Room.prototype = {
 	getItems: function() { return this.items; },
 	drop: function(i) { this.items.push(i); },
 	take: function(i) { return this.items.splice(this.items.indexOf(i), 1); },
-	here: function(i) { return this.items.indexOf(i) >= 0; },
+	here: function(i) { return this.items.indexOf(i) != -1; },
 	move: function(d) {
 		for (var e in this.exits) {
 			if (this.exits[e].command == d) {

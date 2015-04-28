@@ -8,6 +8,7 @@ function Item(name) {
 	this.message = [];
 	this.fixed = false;
 	// other properties for item
+	this.ability = [];
 	this.props = [];
 }
 Item.prototype = {
@@ -19,7 +20,11 @@ Item.prototype = {
 	incrStatus: function() { this.status++; },
 	decrStatus: function() { this.status--; },
 	addProp: function(p) { this.props.push(p); },
-	getProp: function(p) { return this.props.indexOf(p) >= 0; },
+	hasProp: function(p) { return this.props.indexOf(p) != -1; },
+	getProps: function() { return this.props; },
+	addAbility: function(a) { this.ability.push(a); },
+	hasAbility: function(a) { return this.ability.indexOf(a) != -1; },
+	getAbilities: function() { return this.ability; },
 	show: function() { return this.message[this.status]; },
 	look: function() { return 'There is ' + this.show() + ' here.'; },
 	setFixed: function() { this.fixed = true; },

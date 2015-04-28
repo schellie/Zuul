@@ -18,8 +18,8 @@ Exit.prototype = {
 		if (this.condition == 1) return 1;
 		var p = this.condition.toString().split(':');
 		if (p.length > 1) {
-			var it = main.items.filter(main.find(p[0]));
-			if(it[0].getStatus() ==  p[1]) return 1; else return -2; // blocked
+			var it = findItemByName(p[0]);
+			if(it.getStatus() ==  p[1]) return 1; else return -2; // blocked
 		}
 		return -1;
 	}

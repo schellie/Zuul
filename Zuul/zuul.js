@@ -92,7 +92,7 @@ function findItemByName(name) {
 function findItemByProp(p) {
 	var res = [];
 	for (var i in zuul.items) {
-		if (zuul.items[i].getProp(p)) res.push(zuul.items[i]);
+		if (zuul.items[i].hasProp(p)) res.push(zuul.items[i]);
 	}
     return res;
 }
@@ -117,7 +117,7 @@ function doAction(vb, it) {
 		if (it === 0) return speak(player['do_' + zuul.actions[vb][1]](0));
 		// check if valid item
 		if (it != -1 && zuul.actions[it][0] == 'is') 
-			return speak(player['do_' + zuul.actions[vb][1]](zuul.actions[it][2]));
+			return speak(player['do_' + zuul.actions[vb][1]](findItemByName(zuul.actions[it][1])));
 		return speak(7);
 	}
 	if (type == 'is') {
@@ -197,6 +197,7 @@ function init_data() {
 		for (s in props) {
 			var p = props[s].split(':');
 			if (p[0] == 'has') item.addProp(p[1]);
+			if (p[0] == 'do') item.addAbility(p[1]);
 		}
 
 		// create ref. in actions, and add if it shouldn't exist
