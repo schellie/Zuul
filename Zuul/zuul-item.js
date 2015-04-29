@@ -21,12 +21,12 @@ Item.prototype = {
 	decrStatus: function() { if (this.status > 0) this.status--; },
 	changeStatus: function(p) { 
 		var s = this.props[p];
-		if (parseInt(s) >= 0) setStatus(s);
-		else if (s == '-') decrStatus();
-		else if (s == '+') incrStatus();
+		if (parseInt(s) >= 0) this.setStatus(s);
+		else if (s == '-') this.decrStatus();
+		else if (s == '+') this.incrStatus();
 	},
 	addProp: function(p, v) { this.props[p] = v; },
-	hasProp: function(p) { return this.props.indexOf(p) != -1; },
+	hasProp: function(p) { return this.props[p] !== undefined; },
 	getProps: function() { return this.props; },
 	checkProp: function(p, list) {
 		for (var i in list) {

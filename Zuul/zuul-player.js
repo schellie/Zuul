@@ -30,7 +30,8 @@ var player = {
     holding: function() { return this.inventory.length; },
     toting: function(i) { return this.inventory.indexOf(i) != -1; },
     here: function(i) { return (this.toting(i) || this.getRoom().here(i)); },
-    do_take: function(i) {
+    message: function(s, p, i) { return s.replace(/%p/, p).replace(/%i/, i); },
+    do_take: function(p, i) {
     	if (i === 0) {  // no item specified
 	    	// list of items in this room 
 	    	var items_here = this.getRoom().getItems();
@@ -54,7 +55,7 @@ var player = {
 		this.inventory.push(i[0]); // we push the reffered item
 		return [26, i[0].getName()]; 
 	},
-    do_drop: function(i) {
+    do_drop: function(p, i) {
     	if (this.holding() === 0) return 30;
     	if (i === 0) { // no item specified, drop everything
     		var s = '';
@@ -71,8 +72,8 @@ var player = {
     	this.inventory.splice(this.inventory.indexOf(i), 1);
     	return [32, zuul.items[i].getName()];
     },
-    do_open: function(i) {
-    	var p = 'open';
+    do_open: function(p, i) {
+    	log(p);
     	if (i === 0) { // no item specified
 	    	// list of items in this room 
 	    	var items_here = this.getRoom().getItems();
@@ -110,10 +111,33 @@ var player = {
     	
     	return 1;
     },
-    do_wave: function(i) {
+    do_wave: function(p, i) {
+    	var mssg = [
+    	  'There is nothing here to %p.',
+    	  'Please, be more specific.',
+    	  'I see no %i here.',
+    	  'You cannot %p with a %i.',
+    	  'You have nothing to %p with.',
+    	  'You %p but nothing happens'
+    	 ];
+    	
     	if (i === 0) { // no item specified
-    	}    	
-    	return 1;
+	    	// list of items in this room 
+	    	var items_here = this.getRoom().getItems();
+	    	if (!items_here.length) return this.message(mssg[0], p, '');
+    		if (items_here.length == 1) i = items_here[0]; // point to the one item
+    		else return this.message(mssg[1], p, ''); // more items here    	
+    	}
+    	if (!this.here(i)) return this.message(mssg[2], p, i.getName());
+
+    	// check properties and abilities in this place
+    	if (!i.hasProp(p)) return this.message(mssg[3], p, i.getName());
+
+    	var propOk = i.checkProp(p, this.inventory);
+    	if (!propOk) propOk = i.checkProp(p, this.getRoom().getItems());
+    	if (!propOk) return this.message(mssg[4], p, i.getName());
+    	// unlock
+    	return this.message(mssg[5], p, i.getName());
     },
     do_go: function(i) {
     	
@@ -177,17 +201,17 @@ var player = {
     	}    	
     	return 1;
     },
-    do_inventory: function () {
+    do_inventory: function (p) {
     	var s = (this.inventory.length > 0) ? 'You hold:\n' : 'You don\'t hold anything\n';
         this.inventory.forEach(function (e, i) {
             s += '- ' + e.show() + '\n';
         });
         return s.slice(0, -1);
     },
-    do_look: function () {
+    do_look: function (p) {
     	return this.getRoom().look();
     },
-    do_log: function(i) {
+    do_log: function(p, i) {
     	if (i === 0) { // no item specified
     		return zuul.toggleLogging();
     	}

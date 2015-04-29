@@ -41,9 +41,10 @@ var data = {
 	    ['axe', ['a giant axe'], 6],
 	    ['book', ['a dwarvish book'], 3],
 	    ['gold', ['a bar of gold'], 0, 'has:treasure'],
-	    ['gate', ['a gate with solid iron bars', 'an unlocked iron gate'], 5, 7, 'has:close:1', 'has:open:0'],
+	    ['gate', ['a gate with solid iron bars', 'an unlocked iron gate'], 5, 7, 'has:close:0', 'has:open:1'],
 	    ['lamp', ['a brass lamp', 'a lit brass lamp'], 2, 'do:on', 'do:off', 'has:on:1', 'has:off:0'],
-	    ['database', ['fake item, used for debugging only'], 0]
+	    ['database', ['fake item, used for debugging only'], 0],
+	    ['wand', ['a magic wand'], 7, 'do:wave', 'has:wave']
 	],
 	words: [
 	    ['go', 'north', 'n'],
@@ -65,6 +66,7 @@ var data = {
 	    ['is', 'database'],
 	    ['is', 'gate', 'grate', 'bars'],
 	    ['is', 'lamp', 'light', 'lantern'],
+	    ['is', 'wand', 'magic wand'],
 	    ['do', 'take', 'get', 'carry', 'keep', 'catch', 'steal', 'capture', 'tote'],
 	    ['do', 'drop', 'release', 'free', 'discard', 'dump'],
 	    ['do', 'open', 'unlock'],

@@ -114,10 +114,10 @@ function doAction(vb, it) {
 	if (type == 'go') return speak(player.move(zuul.actions[vb][1]));
 	if (type == 'do') {
 		// if no item we pass on
-		if (it === 0) return speak(player['do_' + zuul.actions[vb][1]](0));
+		if (it === 0) return speak(player['do_' + zuul.actions[vb][1]](zuul.actions[vb][1], 0));
 		// check if valid item
 		if (it != -1 && zuul.actions[it][0] == 'is') 
-			return speak(player['do_' + zuul.actions[vb][1]](findItemByName(zuul.actions[it][1])));
+			return speak(player['do_' + zuul.actions[vb][1]](zuul.actions[vb][1], findItemByName(zuul.actions[it][1])));
 		return speak(7);
 	}
 	if (type == 'is') {
@@ -129,7 +129,7 @@ function doAction(vb, it) {
 		}
 		// if 2nd is action we can do something
 		if (it != -1 && zuul.actions[it][0] == 'do') 
-			return speak(player['do_' + zuul.actions[it][1]](zuul.actions[vb][2]));
+			return speak(player['do_' + zuul.actions[it][2]](zuul.actions[it][2], findItemByName(zuul.actions[vb][1])));
 		return speak(1);
 	}
 }
