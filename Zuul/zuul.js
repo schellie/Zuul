@@ -196,7 +196,7 @@ function init_data() {
 		// add properties
 		for (s in props) {
 			var p = props[s].split(':');
-			if (p[0] == 'has') item.addProp(p[1]);
+			if (p[0] == 'has') item.addProp(p[1], p[2] || -1);
 			if (p[0] == 'do') item.addAbility(p[1]);
 		}
 

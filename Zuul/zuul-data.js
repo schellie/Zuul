@@ -37,12 +37,12 @@ var data = {
 		[7, 5, 'west', 'gate:1']
 	],
 	items: [ // name, message (status0), initial room, optional: fixed room# (or -1), list of properties
-	    ['keys', ['a set of keys'], 1, 'do:lock'],
+	    ['keys', ['a set of keys'], 1, 'do:close', 'do:open'],
 	    ['axe', ['a giant axe'], 6],
 	    ['book', ['a dwarvish book'], 3],
 	    ['gold', ['a bar of gold'], 0, 'has:treasure'],
-	    ['gate', ['a gate with solid iron bars', 'an unlocked iron gate'], 5, 7, 'has:lock'],
-	    ['lamp', ['a brass lamp', 'a lit brass lamp'], 2, 'has:light'],
+	    ['gate', ['a gate with solid iron bars', 'an unlocked iron gate'], 5, 7, 'has:close:1', 'has:open:0'],
+	    ['lamp', ['a brass lamp', 'a lit brass lamp'], 2, 'do:on', 'do:off', 'has:on:1', 'has:off:0'],
 	    ['database', ['fake item, used for debugging only'], 0]
 	],
 	words: [

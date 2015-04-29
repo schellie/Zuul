@@ -72,7 +72,7 @@ var player = {
     	return [32, zuul.items[i].getName()];
     },
     do_open: function(i) {
-    	var p = 'lock';
+    	var p = 'open';
     	if (i === 0) { // no item specified
 	    	// list of items in this room 
 	    	var items_here = this.getRoom().getItems();
@@ -85,13 +85,10 @@ var player = {
     	// can it be locked? 
     	// check properties and abilities in this place
     	if (!i.hasProp(p)) return [38, i.getName()];
-    	var present = false;
-   		var ilist = this.getRoom().getItems();
-   		for (var a in ilist) if (ilist[a].hasAbility(p)) present = true;
-    	for (var b in this.inventory) if (this.inventory[b].hasAbility(p)) present = true;
-    	if (!present) return 39;
+    	var propOk = i.checkProp(p, this.inventory);
+    	if (!propOk) propOk = i.checkProp(p, this.getRoom().getItems());
+    	if (!propOk) return 39;
     	// unlock
-    	i.incrStatus();
     	return [40, i.getName()];
     },
     do_close: function(i) {
